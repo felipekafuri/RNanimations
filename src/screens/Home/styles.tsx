@@ -38,8 +38,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     backgroundColor: '#7159c1',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8
+    justifyContent: 'center'
   },
   buttonText:{
     fontSize: 18,

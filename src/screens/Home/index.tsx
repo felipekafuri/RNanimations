@@ -8,15 +8,16 @@ import { Feather } from '@expo/vector-icons'
 
 import { styles } from './styles'
 
+const AnimatedRectButton = Animated.createAnimatedComponent(RectButton)
+
 export function Home() {
   const windowWidthLimit = Dimensions.get('window').width - styles.button.width
   const windowHeightLimit = Dimensions.get('window').height - styles.button.height
   const bottomSpace = getBottomSpace()
   const topSpace = getStatusBarHeight() - styles.userContainer.paddingTop - styles.userContainer.height
 
-  const buttonAnimation = useSharedValue(0)
-  const positionX = useSharedValue((windowWidthLimit/2 - styles.button.width/2) )
-  const positionY = useSharedValue(windowHeightLimit/2 - styles.button.height - bottomSpace)
+  const positionX = useSharedValue(150)
+  const positionY = useSharedValue(270)
 
   const buttonStyle = useAnimatedStyle(() => {
     return {
@@ -71,13 +72,16 @@ export function Home() {
 
       <View style={styles.content}>
         <PanGestureHandler onGestureEvent={onGestureEvent}>
-          <Animated.View style={[buttonStyle]}>
-            <RectButton
+          <Animated.View style={[
+              buttonStyle
+            ]}
+          >
+            <AnimatedRectButton
               style={[styles.button]}
-              onPress={() => (buttonAnimation.value = Math.random())}
+              onPress={() => {}}
             >
               <Feather name="plus" color="#ffff" size={30}/>
-            </RectButton>
+            </AnimatedRectButton>
           </Animated.View>
         </PanGestureHandler>
       </View>
