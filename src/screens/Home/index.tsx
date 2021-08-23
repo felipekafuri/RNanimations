@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
 import { BackHandler, Dimensions, StatusBar, TouchableOpacity } from 'react-native'
 import { Image, Text, View } from 'react-native'
-import { GestureHandlerRootView, PanGestureHandler, RectButton } from 'react-native-gesture-handler'
+import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent, RectButton } from 'react-native-gesture-handler'
 import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper'
-import Animated, {  useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withDecay, withSpring, withTiming } from 'react-native-reanimated'
+import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withDecay, withSpring, withTiming } from 'react-native-reanimated'
 import { Feather } from '@expo/vector-icons'
 
 import { styles } from './styles'
@@ -14,26 +14,20 @@ import { useNavigation } from '@react-navigation/native'
 const AnimatedRectButton = Animated.createAnimatedComponent(RectButton)
 
 export function Home() {
-  const {navigate} = useNavigation()
+  const { navigate } = useNavigation()
 
   const height = Dimensions.get('window').height - styles.userContainer.paddingTop - styles.userContainer.height - getStatusBarHeight()
-  const width = Dimensions.get('window').width - styles.button.width
+  const width = Dimensions.get('window').width - 64
 
-  const positionX = useSharedValue(0)
-  const positionY = useSharedValue(0)
+  const positionX = useSharedValue(150)
+  const positionY = useSharedValue(270)
 
 
-  const buttonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: positionX.value },
-        { translateY: positionY.value }
-      ]
-    }
-  })
-  
-  const onGestureEvent = useAnimatedGestureHandler({
-    onStart: (event, ctx: any) => {
+  const onGestureEvent = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    { positionX: number; positionY: number }
+  >({
+    onStart: (event, ctx) => {
       ctx.positionX = positionX.value
       ctx.positionY = positionY.value
     },
@@ -55,11 +49,28 @@ export function Home() {
         positionY.value = withSpring(positionY.value - height / 10)
       }
       // Trespassing top
-      if (positionY.value <= (height/10) * -1) {
-        positionY.value = withSpring((height/5 - positionY.value))
+      if (positionY.value <= (height / 10) * -1) {
+        positionY.value = withSpring((height / 5 - positionY.value))
       }
     }
   })
+
+
+  const buttonStyle = useAnimatedStyle(() => {
+    return {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: '#7159c1',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transform: [
+        { translateX: positionX.value },
+        { translateY: positionY.value }
+      ]
+    }
+  })
+
   function navigateToRegister() {
     Alert.alert('Ta funfando')
     navigate('Register')
@@ -77,21 +88,17 @@ export function Home() {
           <Image style={styles.userAvatar} source={{ uri: "https://www.github.com/felipekafuri.png" }} />
         </View>
         <Text style={styles.greetings}>Olá, Felipe Kafuri</Text>
-        <RectButton style={{ width: 50, height: 50, backgroundColor: 'red'}}>
-          <Text>ola</Text>
-        </RectButton>
       </View>
 
       <View style={styles.content}>
 
         <PanGestureHandler onGestureEvent={onGestureEvent}>
-          <Animated.View style={buttonStyle}
-          >
+              
+          <Animated.View style={buttonStyle} >
             <AnimatedRectButton
-              style={styles.button}
               onPress={navigateToRegister}
             >
-              <Feather name="plus" color="#ffff" size={30}/>
+              <Feather name="plus" color="#ffff" size={30} />
             </AnimatedRectButton>
           </Animated.View>
         </PanGestureHandler>

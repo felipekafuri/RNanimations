@@ -33,14 +33,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  button:{
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#7159c1',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
   buttonText:{
     fontSize: 18,
     color: '#ffff',
