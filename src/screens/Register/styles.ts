@@ -6,37 +6,49 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
-  userContainer:{
+  header:{
     paddingTop: getStatusBarHeight() + 8,
     width: '100%',
     height: 96 + getStatusBarHeight(),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#279c00'
+    backgroundColor: '#279c00',
+    justifyContent: 'space-around',
   },
-  userAvatar:{
-    width: 64,
-    height: 64,
-    borderRadius: 32
-  },
-  greetings:{
-    marginLeft: 16,
+  headerText:{
     fontSize: 22,
     color: '#ffff',
     fontWeight: 'bold'
   },
   content:{
-    flex: 1,
     width: '100%',
     height: '100%',
     alignItems: 'center',
-    justifyContent: 'center'
+  },
+  button:{
+    width: '90%',
+    height: 56,
+    backgroundColor: '#7159c1',
+    padding: 10,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16
   },
   buttonText:{
     fontSize: 18,
     color: '#ffff',
     fontWeight: 'bold',
+  },
+  input:{
+    width: '90%',
+    height: 64,
+    padding: 10,
+    borderWidth: 3,
+    borderRadius: 15,
+    borderColor: '#279c90',
+    marginTop: 10,
+    fontSize:16
   }
 });
 

@@ -1,27 +1,45 @@
-import React, { useEffect } from 'react'
-import { BackHandler, Dimensions, StatusBar, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
+import { Dimensions, StatusBar } from 'react-native'
 import { Image, Text, View } from 'react-native'
-import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent, RectButton } from 'react-native-gesture-handler'
+import { PanGestureHandler, PanGestureHandlerGestureEvent, RectButton, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { getBottomSpace, getStatusBarHeight } from 'react-native-iphone-x-helper'
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withDecay, withSpring, withTiming } from 'react-native-reanimated'
+import Animated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { Feather } from '@expo/vector-icons'
 
 import { styles } from './styles'
-import { Alert } from 'react-native'
-import { TouchableOpacityBase } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { useCallback } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const AnimatedRectButton = Animated.createAnimatedComponent(RectButton)
 
 export function Home() {
-  const { navigate } = useNavigation()
+  const [todos, setTodos] = useState<string[]>([])
 
-  const height = Dimensions.get('window').height - styles.userContainer.paddingTop - styles.userContainer.height - getStatusBarHeight()
+  const { navigate } = useNavigation()
+  const height = 400
   const width = Dimensions.get('window').width - 64
+  const bottomSpace = getBottomSpace()
+  const statusBarHeight = getStatusBarHeight()
 
   const positionX = useSharedValue(150)
   const positionY = useSharedValue(270)
 
+
+  const buttonStyle = useAnimatedStyle(() => {
+    return {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      backgroundColor: '#7159c1',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transform: [
+        { translateX: positionX.value },
+        { translateY: positionY.value }
+      ]
+    }
+  })
 
   const onGestureEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
@@ -45,35 +63,57 @@ export function Home() {
         positionX.value = withSpring((width + positionX.value) * -1)
       }
       // Trespassing bottom
-      if (positionY.value >= (height / 10)) {
-        positionY.value = withSpring(positionY.value - height / 10)
+      if (positionY.value >= height) {
+        positionY.value = withSpring(positionY.value - bottomSpace)
       }
       // Trespassing top
-      if (positionY.value <= (height / 10) * -1) {
-        positionY.value = withSpring((height / 5 - positionY.value))
+      if (positionY.value <= (height - statusBarHeight - styles.userContainer.height) * -1) {
+        console.log('oi')
+        positionY.value = withSpring(positionY.value + statusBarHeight + 64)
       }
     }
   })
 
 
-  const buttonStyle = useAnimatedStyle(() => {
+
+  const scrollY = useSharedValue(0)
+
+  const scrollHandler = useAnimatedScrollHandler((event: any) => {
+    scrollY.value = event.contentOffset.y
+  })
+
+  const headerStyle = useAnimatedStyle(() => {
     return {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: '#7159c1',
-      alignItems: 'center',
-      justifyContent: 'center',
-      transform: [
-        { translateX: positionX.value },
-        { translateY: positionY.value }
-      ]
+      height: interpolate(
+        scrollY.value,
+        [0, styles.userContainer.height / 2],
+        [styles.userContainer.height, 0],
+        Extrapolate.CLAMP
+      )
     }
   })
 
+
   function navigateToRegister() {
-    Alert.alert('Ta funfando')
     navigate('Register')
+  }
+
+  const listTodos = useCallback(async () => {
+    const response = await AsyncStorage.getItem('@rnanimation')
+
+    if (response) {
+      setTodos(JSON.parse(response))
+    }
+  }, [])
+
+  useFocusEffect(() => {
+    listTodos()
+  })
+
+  async function handleDeleteTodo(todo: string){
+    const findIndex = todos.findIndex(todo => todo === todo)
+    todos.splice(findIndex, 1)
+    await AsyncStorage.setItem('@rnanimation', JSON.stringify(todos))
   }
 
   return (
@@ -83,18 +123,21 @@ export function Home() {
         backgroundColor="transparent"
         translucent
       />
-      <View style={styles.userContainer}>
+      <Animated.View style={[styles.userContainer, headerStyle]}>
         <View>
           <Image style={styles.userAvatar} source={{ uri: "https://www.github.com/felipekafuri.png" }} />
         </View>
         <Text style={styles.greetings}>Olá, Felipe Kafuri</Text>
-      </View>
+      </Animated.View>
 
-      <View style={styles.content}>
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ alignItems: 'center', paddingTop: 200 }}
+      >
 
         <PanGestureHandler onGestureEvent={onGestureEvent}>
-              
-          <Animated.View style={buttonStyle} >
+          <Animated.View style={[buttonStyle, { position: 'absolute', zIndex: 999 }]} >
             <AnimatedRectButton
               onPress={navigateToRegister}
             >
@@ -102,7 +145,21 @@ export function Home() {
             </AnimatedRectButton>
           </Animated.View>
         </PanGestureHandler>
-      </View>
+
+        {todos.map((todo, index) => (
+          <TouchableWithoutFeedback  
+            style={styles.todoCard} 
+            key={index}
+            onLongPress={()=>handleDeleteTodo(todo)}
+          >
+            <Text style={styles.todoName}>{todo}</Text>
+          </TouchableWithoutFeedback>
+        ))}
+
+
+
+      </Animated.ScrollView>
+
     </View>
   )
 }
