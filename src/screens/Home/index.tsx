@@ -17,19 +17,20 @@ export function Home() {
   const [todos, setTodos] = useState<string[]>([])
 
   const { navigate } = useNavigation()
-  const height = 400
+  const height = Dimensions.get('screen').height
   const width = Dimensions.get('window').width - 64
   const bottomSpace = getBottomSpace()
   const statusBarHeight = getStatusBarHeight()
 
   const positionX = useSharedValue(150)
   const positionY = useSharedValue(270)
-
+  const scrollY = useSharedValue(0)
 
   const buttonStyle = useAnimatedStyle(() => {
     return {
       width: 64,
       height: 64,
+      zIndex: 99999,
       borderRadius: 32,
       backgroundColor: '#7159c1',
       alignItems: 'center',
@@ -63,20 +64,18 @@ export function Home() {
         positionX.value = withSpring((width + positionX.value) * -1)
       }
       // Trespassing bottom
-      if (positionY.value >= height) {
-        positionY.value = withSpring(positionY.value - bottomSpace)
+      if (event.translationY + ctx.positionY >= height - bottomSpace - 64) {
+        positionY.value = withSpring(positionY.value - bottomSpace - 64)
       }
       // Trespassing top
-      if (positionY.value <= (height - statusBarHeight - styles.userContainer.height) * -1) {
-        console.log('oi')
-        positionY.value = withSpring(positionY.value + statusBarHeight + 64)
+      if (event.translationY + ctx.positionY <= -(statusBarHeight - 200) ) {
+        positionY.value = withSpring(-(statusBarHeight - styles.userContainer.height - 64))
       }
     }
   })
 
 
 
-  const scrollY = useSharedValue(0)
 
   const scrollHandler = useAnimatedScrollHandler((event: any) => {
     scrollY.value = event.contentOffset.y
@@ -146,7 +145,7 @@ export function Home() {
           </Animated.View>
         </PanGestureHandler>
 
-        {todos.map((todo, index) => (
+        {['1','2','3','4','5','6','7','8','9','10','11','12','13'].map((todo, index) => (
           <TouchableWithoutFeedback  
             style={styles.todoCard} 
             key={index}
