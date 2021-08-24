@@ -145,7 +145,7 @@ export function Home() {
           </Animated.View>
         </PanGestureHandler>
 
-        {['1','2','3','4','5','6','7','8','9','10','11','12','13'].map((todo, index) => (
+        {todos.map((todo, index) => (
           <TouchableWithoutFeedback  
             style={styles.todoCard} 
             key={index}
