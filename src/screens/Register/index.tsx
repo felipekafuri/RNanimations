@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { View, Text, StatusBar, TextInput, Alert } from 'react-native'
-import { styles } from './styles'
-import { useNavigation } from '@react-navigation/native'
+import { Alert, StatusBar, Text, TextInput, TouchableWithoutFeedbackBase, View } from 'react-native'
 import { RectButton, TouchableWithoutFeedback } from 'react-native-gesture-handler'
-import { TouchableWithoutFeedbackBase } from 'react-native'
+
 import { Feather } from '@expo/vector-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation } from '@react-navigation/native'
+
+import { styles } from './styles'
 
 export function Register() {
   const [todo, setTodo] = useState('')
